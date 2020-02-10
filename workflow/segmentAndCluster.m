@@ -69,6 +69,7 @@ if exist(paused_sylls_filename, 'file') == 0 %if fresh file (not starting from p
     if any(diff(returnSIndices) == 0) % returnSIndices should be alternating 1/0; i.e., diff's should = 1
         isBadIndices = [diff(returnSIndices) == 0; sIdxs(end)==0];
         fusedTimes(isBadIndices)
+        error('ERROR: Check your bout on/offsets!');
     end
     assert(numel(returnStarts) == numel(returnStops), 'ERROR: Check your bout on/offsets!');
     assert(all(returnStarts < returnStops) && all(returnStarts(2:end) > returnStops(1:end-1)), 'ERROR: Check your bout on/offsets!');
