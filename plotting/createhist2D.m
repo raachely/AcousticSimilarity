@@ -1,4 +1,4 @@
-function [histcol, = createhist2D(X,lambda,nbins,plottype,lims)
+function [histcol] = createhist2D(X,lambda,nbins,plottype,lims)
 % CREATEHIST2D Create a smoothed histogram of bivariate data.
 %   CREATEHIST2D(X,LAMBDA,NBINS) plots a smoothed histogram of the bivariate
 %   data in the N-by-2 matrix X.  Rows of X correspond to observations.  The
