@@ -25,7 +25,7 @@ for kk = 1:nUnits
     [~,spikeTimes] = countSpikes(ERAPeriods, spikes{kk},'onset');
     spikeTimes = vertcat(spikeTimes{:}) + ERAWindow(1);
     
-    % get total histogram for each neuron
+    % get total histogram for each neuron (across all event periods)
     tmpHist = histc(spikeTimes,bins); %/numel(events)
     %tmpHist = tempHist/binSize;
     

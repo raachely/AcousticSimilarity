@@ -14,16 +14,19 @@ else
     [sortedAST, sidx] = sort(augSpikeTrain);
     sortedIsBorder = isBorder(sidx); %single column where 0 for every spikes; 1 marks event starts & -1 marks event stops
     
-    inEvent = cumsum(sortedIsBorder); inEvent(sortedIsBorder == 1) = 0; %w/ cumsum, spikes w/in events (1 to -1) will be marked w/ 1; then set start borders to 0, leaving 1s to mark only spikes w/in events
+    inEvent = cumsum(sortedIsBorder); %w/ cumsum, spikes w/in events (1 to -1) will be marked w/ 1;
+    inEvent(sortedIsBorder == 1) = 0; %then set start borders to 0, leaving 1s to mark only spikes w/in events; i.e. inEvent = single column where 0 for non-event spikes, 1 for w/inevent spikes
     
     inSpikes  = sortedAST;  inSpikes(sortedIsBorder ~= 0) = NaN;  inSpikes(inEvent~=1) = NaN; %spike times at borders = NaN; spike times that aren't = 1 (i.e. aren't w/in events) = NaN
     %outSpikes = sortedAST; outSpikes(sortedIsBorder ~= 0) = NaN; outSpikes(inEvent==1) = NaN;
     
-    ISIs_in  = diff( inSpikes);  
-    ISIs_in(isnan(ISIs_in )) = [];
+    ISIs_in  = diff( inSpikes);  %column of ISIs w/ NaNs for spikes that are outside of event times
+    ISIs_in(isnan(ISIs_in )) = []; %column of w/in-event-ISIs only
     %ISIs_out = diff(outSpikes); ISIs_out(isnan(ISIs_out)) = [];
     
-    %JMA added this part to do get burst fraction per event
+    %JMA added this part to do get burst fraction per event [RY not sure
+    %this is fully accurate.. counting # ISIs < threshold isn't quite the
+    %same as counting how many spikes occur w/in a burst]
     bfEvent = NaN(numel(events),1);
     for i = 1: numel(events)
         %eventSpikInd = starts(i) < inSpikes > stops(i); ??? how can this possibly be correct? RY changed.

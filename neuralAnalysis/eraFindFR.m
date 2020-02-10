@@ -22,10 +22,10 @@ baseIFR = zeros(1,nUnits);
 
 for kk = 1:nUnits
     
-    [~,spikeTimes] = countSpikes(ERAPeriods, spikes{kk},'onset');
+    [~,spikeTimes] = countSpikes(ERAPeriods, spikes{kk},'onset'); %spike times in each ERAPeriod event, aligned to onset
     spikeTimes = vertcat(spikeTimes{:}) + ERAWindow(1);
     
-    % get total histogram for each neuron
+    % get total histogram for each neuron (across all event periods)
     tmpHist = histc(spikeTimes,bins)/numel(events);
     tmpHist = tmpHist/binSize;
     
