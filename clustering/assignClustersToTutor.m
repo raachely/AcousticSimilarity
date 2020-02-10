@@ -3,7 +3,7 @@ function assignClustersToTutor(birdID, thisAge)
 % takes user input to decide which tutor syllable matches those clusters
 dataDir  = ['data' filesep birdID filesep];
 % open viewer for the tutor 
-f
+imshow(['figures' filesep 'tutor-' birdID '.jpg']);
 set(gca,'Position', [0 0 1 1]);
 %% 
 report = reportOnData(birdID,'',defaultParams,'verbose',false);
