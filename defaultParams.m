@@ -137,7 +137,7 @@ params.syllable.flatFactor = 2.5;     % the factor at which to call minima/maxim
 % factors that change the locations of the boundaries
 params.syllable.borderRise = 1e-3;    % power / ms, this threshold set on the minimal change in amplitude across the syllable
                                       % this means that the slope of the power at the boundaries must be less
-                                      % this can be changed if the boundaries are too tight/loose
+                                      % this can be changed if the boundaries are too tight/loose (increase = tighter boundaries)
 
 params.syllable.comboLength = 20; % ms, minimum tolerated distance between syllables.
                                  % syllables closer than this length are
