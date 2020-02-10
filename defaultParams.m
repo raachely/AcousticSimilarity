@@ -1,4 +1,5 @@
 function params = defaultParams
+%test test
 %DEFAULTPARAMS returns parameters for parsing functions
 %
 %    function params = defaultParams returns the parameter structure for
