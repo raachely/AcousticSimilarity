@@ -10,7 +10,7 @@ function sample = highPassSample(sample,params)
         error('highPassSample:Undefined','Undefined sampling frequency');
     end
     if isfield(params, 'fs') && isnan(params.fs)
-        error('highPassSample:Undefined', 'Undefined sampling frequency')'
+        error('highPassSample:Undefined', 'Undefined sampling frequency')
     end
     % 2nd order butterworth filter, supposedly...
     [bFilt,aFilt] = butter(2,params.highPassFq/(params.fs/2),'high');
