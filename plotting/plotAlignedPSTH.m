@@ -19,6 +19,7 @@ syllableLabels = {subEvents.type};
 syllableLengths = [subEvents.stop] - [subEvents.start];
 [uLabels, foo, rLabelIdx] = unique(syllableLabels);
 
+
 [parentage, eventsInContext] = findParent(events,subEvents);
 
 nAlign = numel(labelsOfInterest);
