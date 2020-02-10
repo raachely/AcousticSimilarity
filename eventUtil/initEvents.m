@@ -18,7 +18,7 @@ if nargin == 0
 end
 if nargin < 2
     %fields = {'type','start','stop','idxStart','idxStop'};
-    fields = {'type','start','stop','idxStart','idxStop', 'file'}; %RY added 'file' field
+    fields = {'type','start','stop','idxStart','idxStop','file'}; %RY added 'file' field
 elseif isstruct(exampleEvent)
     fields = fieldnames(exampleEvent);
 else
