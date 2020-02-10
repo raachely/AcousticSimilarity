@@ -98,32 +98,45 @@ if exist(paused_sylls_filename, 'file') == 0 %if fresh file (not starting from p
         params.syllable.session = sessionID; %need this for later, when concatenating syll params w/ previous sessions
     end
     %% Find noise
-    notNoise = manualMotifs;
-    approved = false;
-    while ~approved
-        candidateNoise = autodetectNoise(songStruct, notNoise, params);
-        fprintf('Is this clip pure noise? Mark y if yes...\n');
-        approved = markRegions(songStruct,candidateNoise);
-        if ~approved
-            notNoise = [notNoise; eventFromTimes(0,candidateNoise.stop,fs)];
+    noiseMask_filename = fullfile(matPath, strcat('noiseMask-', sessionID, '.mat'));
+    if exist(noiseMask_filename, 'file') == 0
+        
+        notNoise = manualMotifs;
+        approved = false;
+        while ~approved
+            candidateNoise = autodetectNoise(songStruct, notNoise, params);
+            fprintf('Is this clip pure noise? Mark y if yes...\n');
+            approved = markRegions(songStruct,candidateNoise);
+            if ~approved
+                notNoise = [notNoise; eventFromTimes(0,candidateNoise.stop,fs)];
+            end
         end
+        noiseMask = noiseAnalysis(songStruct, candidateNoise);
+        params.noiseFilter = noiseMask;
+        save(fullfile(matPath, strcat('noiseMask-', sessionID, '.mat')), 'noiseMask');
+    else
+        fprintf('Using existing noiseMask file..\n')
+        load(noiseMask_filename)
     end
-    noiseMask = noiseAnalysis(songStruct, candidateNoise);
-    params.noiseFilter = noiseMask;
-    save(fullfile(matPath, strcat('noiseMask-', sessionID, '.mat')), 'noiseMask');
-    
+        
     %% Automatically parse juvenile motifs into syllables
-    ROIs = manualMotifs;
-    syllables = ...
-        parseRegionsIntoSyllables(songStruct, ROIs, params,...
-        'editSpecType', 'inter', 'inter.freqBands', linspace(1,10240,params.inter.NfreqBands), ...
-        'preroll', 30, 'doFilterNoise',true,...
-        'noiseFilter', noiseMask,'nps.reduction',-18, ...
-        'dgram.minContrast', 1e-9,'minCenterFreq', 800,...
-        'plot', false, 'pause', false);
-    [syllables.file] = deal(songfile); %'file' field = file w/ song info ('sAudio') from which each syllable came. this is only necessary if you're going to cluster these syllables below, but doesn't hurt to just add it
-    save(fullfile(matPath, strcat('syllables-', sessionID, '.mat')), 'manualMotifs', 'syllables')
-    fprintf('Saved auto-segmented syllables + manualMotifs (%s). \n', sessionID)
+    autoSylls_filename = fullfile(matPath, strcat('syllables-', sessionID, '.mat'));
+    if exist(autoSylls_filename, 'file') == 0
+        ROIs = manualMotifs;
+        syllables = ...
+            parseRegionsIntoSyllables(songStruct, ROIs, params,...
+            'editSpecType', 'inter', 'inter.freqBands', linspace(1,10240,params.inter.NfreqBands), ...
+            'preroll', 30, 'doFilterNoise',true,...
+            'noiseFilter', noiseMask,'nps.reduction',-18, ...
+            'dgram.minContrast', 1e-9,'minCenterFreq', 800,...
+            'plot', false, 'pause', false);
+        [syllables.file] = deal(songfile); %'file' field = file w/ song info ('sAudio') from which each syllable came. this is only necessary if you're going to cluster these syllables below, but doesn't hurt to just add it
+        save(fullfile(matPath, strcat('syllables-', sessionID, '.mat')), 'manualMotifs', 'syllables')
+        fprintf('Saved auto-segmented syllables + manualMotifs (%s). \n', sessionID)
+    else
+        fprintf('Using existing auto-generated (unrefined) syllable file..\n')
+        load(autoSylls_filename)
+    end
     
     %% (Optional) Plot motifs &/or do initial round of clustering on auto-segmented syllables
     % Attempts to get a sense of juv syllables before manually refining
@@ -143,9 +156,9 @@ if exist(paused_sylls_filename, 'file') == 0 %if fresh file (not starting from p
 %     end
 %     fprintf('Moving on to clustering (unrefined syllables). \n');
     
-    singlecluster(birdID, syllables, params, 'noiseFilter', noiseMask); %cluster (auto-segmented, unrefined) syllables
-    fprintf('Paused after initial clustering of auto-segmented syllables. Press any key to continue onto manual refinement.')
-    pause
+     singlecluster(birdID, syllables, params, 'noiseFilter', noiseMask); %cluster (auto-segmented, unrefined) syllables
+     fprintf('Paused after initial clustering of auto-segmented syllables. Press any key to continue onto manual refinement.')
+     pause
 
 elseif exist(paused_sylls_filename, 'file') == 2
     load(paused_sylls_filename);
