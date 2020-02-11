@@ -1,7 +1,7 @@
 function [thisAge, isPlastic] = getAgeOfSession(thisSession)
 %function [thisAge, isPlastic, plasticScore] = getAgeOfSession(thisSession)
 
-% RY-modified to take out plasticScore; wasn't applicable
+% RY-modified to take out plasticScore - wasn't applicable; commented out.
 
 % maybe consider using persistent variable pattern - but sync will be issue
     xlFile = 'birdSummaries.xlsx';
