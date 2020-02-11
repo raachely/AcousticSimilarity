@@ -45,7 +45,7 @@ for ii = 1:nFiles
             subSpikes{jj} = spikeData.(spikestructfields{jj}).times;
         end
     else 
-    %if ~isfield(spikeData, 'MClust_FeatureTimestamps') % just naked times; RY commented out - not relevant for me
+    %if ~isfield(spikeData, 'MClust_FeatureTimestamps') % just times; RY commented out - not relevant for me
         %spikestructfields = fieldnames(spikeData);
         %nNeuronsPerFile(ii) = numel(spikestructfields);
         %subSpikes = cell(1, nNeuronsPerFile(ii));

@@ -22,7 +22,7 @@
 % - ability to pause partway through manual refinement 
 % - calculates baselinePeriods, which will be necessary if doing any neural analyses
 
-% 02/2018
+% RY 02/2018
 
 dbstop if error
 clear variables

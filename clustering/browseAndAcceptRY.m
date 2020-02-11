@@ -1,6 +1,24 @@
 function [labels, augmentedLabels] = browseAndAcceptRY(birdID)
-% clustering + interactive refinement/inspection, based on browseAndAccept.
-% 03/2018 RY went through & modified, commented
+% clustering + interactive refinement/inspection; RY modified/commented
+% based on browseAndAccept.m from BottjerLab repo.
+% 
+% modified from BottjerLab browseAndAccept: generates & saves
+% acceptedLabels-[birdID]-[age].mat, which contains cluster indices
+% structure that has accepted, regrouped, and augmented labels. 
+
+% also generates & saves session-specific cluster label files - i.e. splits
+% acceptedLabels into session-specific labels. This was originally done
+% with separate call to standalone splitAcceptedLabels.m from Bottjerlab
+% repo
+
+% also generates & saves labelstereotypy-[sessionID].mat, which are
+% intra- and inter-cluster distances. This was originally done with
+% additional call to standalone saveStereotypy.m from BottjerLab repo. 
+
+% also generates tutorSyllableCompare-[sessionID].mat, which has similarity
+% comparisons between juvenile & tutor syllables
+% 
+% 03/2018 RY
 
 close all;
 dbstop if error
@@ -129,9 +147,10 @@ labels(labels == -1) = NaN; %rejected clusters
 regroupedLabels = mergeClustersByHand(ageDRsylls, dists, labels);
 
 % match labels to established groups:
-% only runs if there are unlabeled syllables (NaNs; ex. if a cluster is
+% only matters if there are unlabeled syllables (NaNs; ex. if a cluster is
 % rejected above) - loop through unlabeled syllables & look for matches
-% w/in range of acceptable distance
+% w/in range of acceptable distance; otherwise augmentedLabels will be
+% the same as regroupedLabels
 augmentedLabels = semiLabelSyllables(ageDRsylls, dists, regroupedLabels);
 
 %% Save to an acceptedLabels file
