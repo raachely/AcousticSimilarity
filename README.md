@@ -7,6 +7,7 @@ Modified from original BottjerLab repo (https://github.com/BottjerLab/Acoustic_S
 ### What you'll need:  
 1. Song channel exported from Spike2 to Matlab, named [sessionID]-spike2.mat
     * `sessionID` variable should be a unique identifier for each file that starts with the bird ID and has no dashes within it (underscores OK).
+    * not provided here due to size restrictions
 2. Song bout times exported from Spike2 to Matlab, named motifReturn-[sessionID].txt
 3. Tutor song .wav  
 4. birdSummaries.xlsx  
