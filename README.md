@@ -9,6 +9,9 @@ Modified from original BottjerLab repo (https://github.com/BottjerLab/Acoustic_S
     * `sessionID` variable should be a unique identifier for each file that starts with the bird ID and has no dashes within it (underscores OK).
 2. Song bout times exported from Spike2 to Matlab, named motifReturn-[sessionID].txt
 3. Tutor song .wav  
+4. birdSummaries.xlsx  
+
+birdSummaries.xlsx originally contained a lot of meta data for each session that was used in a variety of analyses , but now is only required to get the associated bird age for each recording session (used by `getAgeOfSession.m`, which is called by `prepareDRSylls.m` and `writeNeuronStats.m`); this could probably be converted to a simpler format that doesn't require a separate Excel file. 
 
 ### Set up
 Set up a root folder titled "data" with subfolders for each bird. The -spike2.mat and motifReturn- files should be located within the appropriate bird folder. If analyzing spike data, files containing spike times should be located within a subfolder within each bird folder and named [sessionID]_times.mat. Ex:  
@@ -27,7 +30,7 @@ Set up a root folder titled "data" with subfolders for each bird. The -spike2.ma
       * Gy101_file1-spike2.mat
       * motifReturn-Gy101_file1.txt  
 
-Single spike files can contain spike times for multiple units from a single session. There are no restrictions on where the tutor song .wav file needs to be. Your current directory should be set to the 'data' folder when running these analyses.
+Single spike files can contain spike times for multiple units from a single session. There are no restrictions on where the tutor song .wav file needs to be. Your current directory should be set to the parent of the 'data' folder when running these analyses.
 These restrictions stem from  `reportOnData.m` and `loadSpikeDAta.m`, which are functions that find associated files/metadata for a given bird/session. Modify these accordingly if your data structure differs.
 
 ### To run:  
