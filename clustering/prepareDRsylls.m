@@ -1,7 +1,15 @@
 function prepareDRsylls(birdID, syllName, params, varargin)
 % calculates spectra and feature tables of all syllables across all
-% sessions, and calculates distance matrices (between syllables w/in each
-% age)
+% sessions, and calculates distance matrices between syllables w/in each
+% age
+% 
+% generates & saves allSpecs-[birdID].mat, which contains DRsylls, spectra,
+% & featureTable variables. 
+%
+% call to DRcluster() generates distance measures that are later used for
+% clustering. Distance measures are contained and saved in altClustDataAge
+% ... .mat.
+
 dbstop if error
 
 if nargin < 2
@@ -20,19 +28,8 @@ end
 saveFile = fullfile(birdPath, strcat('allSpecs-', birdID, '.mat'));
 start = 1;
 
-%started trying to write alternative for if allSpecs already exist - i.e.,
-%segmented additional sessions that needed to be added to allSpecs
-%structures but didn't want to re-calculate everything from scratch - but
-%ended up being more complicated than expected. WOuld be easy to just add
-%on to end, but this wouldn't be helpful if new sessions fell somewhere in
-%the middle
-% if exist(saveFile, 'file') == 2
-%     allSpecs = load(saveFile);
-%     start = numel(allSpecs.DRsylls);
-% end
-
-%% Compile syllables across all sessions
-rep = reportOnData(birdID, [], params, 'rejectNoNeuronSessions', true); 
+%% Compile syllable info across all sessions
+rep = reportOnData(birdID, [], params, 'rejectNoNeuronSessions', false); %change to true to cluster only if a given session has associated spike file(s)
 DRsylls = struct([]);
 sessionNum = [];
 for ii = start:numel(rep) %for each session
@@ -95,7 +92,7 @@ for ii = start:N
     pF = params.fine;
     pF.features = [pF.features 'pitchGoodness']; %RY changed to pitchGoodness, & modified getMTSpectrumStats to use 'pitchGoodness' instead of 'harmonicPitch' as call string
     tmpSpec = getMTSpectrumStats(cl, pF);
-    featureTable{ii} = extractFeatures(tmpSpec);
+    featureTable{ii} = extractFeatures(tmpSpec); %121 fields of feature values for each syllable
     progressbar(ii/N);
     for jj = 1:numel(fieldsToKeep)
         spectra(ii).(fieldsToKeep{jj}) = tmpSpec.(fieldsToKeep{jj});
@@ -107,6 +104,9 @@ save(saveFile,'DRsylls','spectra','featureTable');
 fprintf('Syllables, spectra, & features across all sessions for %s saved to %s.\n',birdID, saveFile);
 
 %% Calculate distance matrices (by age)
+% runs DRcluster on all syllables from within each age, resulting in
+% altClustDataAge-[age]-[date/time stamp].mat, which contains distance
+% measures between syllabes from that age.
 fprintf('Starting distance matrix calculations:\n')
 params.warpingCost = 1.0;
 
@@ -128,7 +128,7 @@ for ii = startAge:numel(ages) %for each age ..
     diary([clustFolder 'diary-' timeFlag '-age' num2str(thisAge) '.txt']);
     
     t1 = clock;
-    [empMats, distMats, empDistrs] = DRcluster(DRsylls(seld), featureTable(seld), spectra(seld), params); %calculate distance matrices for syllables from this age
+    [empMats, distMats, empDistrs] = DRcluster(DRsylls(seld), featureTable(seld), spectra(seld), params); %calculate distance matrices between syllables for syllables from this age
     fprintf('Time for total distance calculations: %0.2fs\n',etime(clock, t1));
     
     clusterFile = [clustFolder 'altClustDataAge-' num2str(ages(ii)) '-' timeFlag]; 

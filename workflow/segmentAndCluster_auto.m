@@ -199,7 +199,7 @@ for current_file = 1:length(files) %for each file/session
     fprintf('Baseline stuff calculated.\nDone with auto (unrefined) syllable segmentation for (%s); moving on ...\n', sessionID);
     clearvars -except matPath files current_file
 end
-Fprintf('ALLLLL DONEEEE');
+fprintf('ALLLLL DONEEEE\n');
 
 %% f(x) to change parameters if auto syllable segmentation was no good
 function [redosyllables, redoparams] = resegment(songStruct, ROIs, noiseMask, oldparams)

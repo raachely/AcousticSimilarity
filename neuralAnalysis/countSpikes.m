@@ -50,4 +50,4 @@ end
 
 rates = counts ./ ([evs.stop]-[evs.start]);
 
-rates = rates'; %RY added; preferred
+%rates = rates'; %RY added; preferred
