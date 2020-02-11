@@ -1,5 +1,27 @@
-% Script for segmenting juvenile & tutor syllables from 1 session. RY
-% edited segmentAndCluster.m from Bottjer lab GitHub
+% Script for segmenting juvenile & tutor song syllables from a single
+% recording session (doesn't cluster). RY-edited version of
+% segmentAndCluster.m from BottjerLab GitHub
+
+% Start with:
+% 1. [sessionID]-spike2.mat (song channel, exported from Spike2)
+% 2. motifReturn-[sessionID].txt (song bout/motif onset & offset times)
+% 3. TUT .wav
+
+% script uses #1 & #2 to find and automatically segment juvenile syllables
+% from song bouts. then asks for user to manually check results, with
+% ability to modify auto-segmented syllable boundaries. also finds silent
+% baseline periods & segments tutor song.
+
+% Modified from BottjerLab GitHub version:
+% - [sessionID].mat, meta-[sessionID].mat, & tutor-[sessionID].mat files
+%   are now generated within script; these were originally separately
+%   provided on BottjerLab GitHub without info about where they came from
+% - optional ability to cluster auto-segmented, unrefined syllables before
+%   manual refinement, to first get a sense of what syllables types there may be
+% - ability to adjust segmentation parameters partway through
+% - ability to pause partway through manual refinement 
+% - calculates baselinePeriods, which will be necessary if doing any neural analyses
+
 % 02/2018
 
 dbstop if error
@@ -8,7 +30,7 @@ clear variables
 % [session-ID]-spike2.mat file exported from Spike2 contains all field
 % information for the song channel. [session ID].mat contains only the
 % audio information (.values field); all other information is stored in
-% metaStruct-[session ID].mat
+% metaStruct-[session ID].mat. 
 [matFile, matPath] = uigetfile('*.mat','Please choose the song Spike2 file','data'); %spike2 files should be named [sessionID]-spike2.mat
 fprintf('Working on file: %s.\n', matFile);
 [~, ID, ~] = fileparts(matFile);
@@ -17,7 +39,7 @@ sessionID = split{1};
 birdID = strtok(sessionID, '_');
 
 %% Juvenile syllable segmentation
-% first check to see if segmenting has already been started
+% first check to see if segmenting had already been started previously
 paused_sylls_filename = fullfile(matPath, strcat('paused_unrefinedsyllables-', sessionID, '.mat'));
 syllparams_filename = fullfile(matPath, strcat('syllparams-', birdID, '.mat'));
 
@@ -52,7 +74,7 @@ if exist(paused_sylls_filename, 'file') == 0 %if fresh file (not starting from p
         
         returnStarts = times(1:2:end);
         returnStops = times(2:2:end);
-    else
+    else %if motifs are on separate channels (single column with header blocks for each channel)
         frewind(returnFid) %start from beginning
         fgetl(returnFid); fgetl(returnFid); %read through header & dead line
         returnStarts = textscan(returnFid,'%f'); returnStarts = returnStarts{1}; %reads through first block of numbers (starts)
@@ -117,6 +139,7 @@ if exist(paused_sylls_filename, 'file') == 0 %if fresh file (not starting from p
     else
         fprintf('Using existing noiseMask file..\n')
         load(noiseMask_filename)
+        params.noiseFilter = noiseMask;
     end
         
     %% Automatically parse juvenile motifs into syllables
@@ -138,27 +161,28 @@ if exist(paused_sylls_filename, 'file') == 0 %if fresh file (not starting from p
         load(autoSylls_filename)
     end
     
-    %% (Optional) Plot motifs &/or do initial round of clustering on auto-segmented syllables
-    % Attempts to get a sense of juv syllables before manually refining
-%   % Plot motifs for visualiation. Code is fine, but commented out b/c I didn't think it was useful
-%     h=figure;
-%     for ii = 1:numel(ROIs) %plot each motif (no adjustment regions; just for visualization) 
-%         thisMotif = ROIs(ii);
-%         fprintf('Checking motif %d/%d...\n', ii, numel(ROIs));
-%         plotAndAdjust(songStruct, [], thisMotif, params, ...
-%             'editSpecType', 'inter', 'inter.freqBands', linspace(1,10240,params.inter.NfreqBands), ...
-%             'dgram.minContrast',1e-9, 'nps.reduction', -12, ... %try modifying these parameters if spectrogram doesn't look good
-%             'doFilterNoise',true, 'noiseFilter', noiseMask, ...
-%             'optGraphs',{'waveform','deriv'});
-%         if ~ishandle(h) %if user closes figure, break out of loop & continue on
-%             break
-%         end
-%     end
-%     fprintf('Moving on to clustering (unrefined syllables). \n');
-    
-     singlecluster(birdID, syllables, params, 'noiseFilter', noiseMask); %cluster (auto-segmented, unrefined) syllables
-     fprintf('Paused after initial clustering of auto-segmented syllables. Press any key to continue onto manual refinement.')
-     pause
+     %% (Optional) Plot motifs &/or do initial round of clustering on auto-segmented syllables
+%     % Attempts to get a sense of juv syllables before manually refining
+
+% %   % Plot motifs for visualiation. Code is fine, but commented out b/c I didn't think it was useful
+% %     h=figure;
+% %     for ii = 1:numel(ROIs) %plot each motif (no adjustment regions; just for visualization) 
+% %         thisMotif = ROIs(ii);
+% %         fprintf('Checking motif %d/%d...\n', ii, numel(ROIs));
+% %         plotAndAdjust(songStruct, [], thisMotif, params, ...
+% %             'editSpecType', 'inter', 'inter.freqBands', linspace(1,10240,params.inter.NfreqBands), ...
+% %             'dgram.minContrast',1e-9, 'nps.reduction', -12, ... %try modifying these parameters if spectrogram doesn't look good
+% %             'doFilterNoise',true, 'noiseFilter', noiseMask, ...
+% %             'optGraphs',{'waveform','deriv'});
+% %         if ~ishandle(h) %if user closes figure, break out of loop & continue on
+% %             break
+% %         end
+% %     end
+% %     fprintf('Moving on to clustering (unrefined syllables). \n');
+%     
+%      singlecluster(birdID, syllables, fs, noiseMask, params); %cluster auto-segmented, unrefined syllables
+%      fprintf('Paused after initial clustering of auto-segmented syllables. Press any key to continue onto manual refinement.')
+%      pause
 
 elseif exist(paused_sylls_filename, 'file') == 2
     load(paused_sylls_filename);
@@ -217,6 +241,7 @@ if do_segcheck == 1
         if ii == seg_check 
             check = input('Does syllable segmentation seem OK? Y to continue; N to quit & adjust parameters. ','s');
             if check == 'Y' || check == 'y' || isempty(check) %if auto-segmentation is ok
+                tmpSyllables = [tmpSyllables revisedSylls'];
                 restart = 0; %break out of while loop & continue on w/ the rest of motifs
                 cont = ii+1;
                 continue
@@ -302,7 +327,7 @@ for i = 1:size(manualMotifs)
     end
 end
 
-% save approved syllables + syllable segmentation params
+% save approved syllables + final syllable segmentation params
 close(hh);
 approvedSyllables = tmpSyllables';
 save(fullfile(matPath, strcat('approvedSyllables-', sessionID, '.mat')), 'approvedSyllables')
@@ -314,7 +339,7 @@ elseif exist(syllparams_filename, 'file') == 2
     syllparams = [syllparams params.syllable]; %(syllparams should already be loaded; expanding it here)
     save(syllparams_filename, 'syllparams');
 end 
-delete(paused_sylls_filename)
+delete(paused_sylls_filename) %delete (if this exists)
 clear tmpSyllables
 disp('Finished manual syllable refinement; saved. Getting baseline periods now ..');
 
@@ -367,7 +392,6 @@ else
     %to be compatible with getClip for easy plotting later. Later decided
     %this was unnecessary - easier to just open up TUT file in SAP for
     %visualization
-    
     %sAudio = tutorStruct.values;
     %metaStruct.interval = tutorStruct.interval;
     %metaStruct.length = tutorStruct.length;
