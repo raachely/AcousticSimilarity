@@ -1,15 +1,16 @@
 # AcousticSimilarity
 Segmenting syllables & calculating/comparing similarity between them 
 
-Modified from original BottjerLab repo (https://github.com/BottjerLab/Acoustic_Similarity), in attempts to consolidate/clarify analysis pipeline 
+Modified from original BottjerLab repo (https://github.com/BottjerLab/Acoustic_Similarity), in attempts to consolidate/clarify analysis pipeline. Moved unused files/folder to newly-added "unused" folder.
 
 ## Basics
-What you'll need:  
+### What you'll need:  
 1. Song channel exported from Spike2 to Matlab, named [sessionID]-spike2.mat
     * `sessionID` variable should be a unique identifier for each file that starts with the bird ID and has no dashes within it (underscores OK).
 2. Song bout times exported from Spike2 to Matlab, named motifReturn-[sessionID].txt
 3. Tutor song .wav  
 
+### Set up
 Set up a root folder titled "data" with subfolders for each bird. The -spike2.mat and motifReturn- files should be located within the appropriate bird folder. If analyzing spike data, files containing spike times should be located within a subfolder within each bird folder and named [sessionID]_times.mat. Ex:  
 
 * data  
@@ -29,13 +30,14 @@ Set up a root folder titled "data" with subfolders for each bird. The -spike2.ma
 Single spike files can contain spike times for multiple units from a single session. There are no restrictions on where the tutor song .wav file needs to be. Your current directory should be set to the 'data' folder when running these analyses.
 These restrictions stem from  `reportOnData.m` and `loadSpikeDAta.m`, which are functions that find associated files/metadata for a given bird/session. Modify these accordingly if your data structure differs.
 
-To run:  
+### To run:  
 1. segmentAndCluster.m: segment juvenile & tutor syllables (doesn't cluster)
     * segmentAndCluster_auto does the same, but without manual refinement, + able to loop through multiple files
-2. prepareDRsylls.m: calculate syllable spectra and cluster
-    * original fullClusterByDayGy242.m from BottjerLab repo was merged into this
+2. prepareDRsylls.m: calculate syllable spectra and cluster for syllables from a given bird
+    * original step to run fullClusterByDayGy242.m from BottjerLab repo was merged into this
     * calculates spectra & clusters syllables from all sessions within each day, so run this only after segmenting syllables from all sessions within an age. even more efficient to run segmentAndCluster on _all_ recordings from a bird, and then run prepareDRsylls just once to cluster all of them (within each age) at once
-3. browseAndAccept.m: refine clustering & compare juvenile vs tutor syllables
+3. browseAndAcceptRY.m: refine clustering & compare juvenile vs tutor syllables
+   * original step to run compareTutorJuvenile.m from BottjerLab repo was merged into this; + modified for clarity
 4. writeNeuronStats.m: run basic calculations of spiking activity during syllable types/clusters
 
 ## Event structures
