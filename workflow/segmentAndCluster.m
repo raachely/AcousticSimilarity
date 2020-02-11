@@ -368,7 +368,7 @@ else
     tutorStruct.values = 3*highPassSample(getClip(wholeRegion, tutorStruct), tutorParams); %high passs (default 400Hz) & amplify
     
     % (loosely) select tutor song boundaries - better for display if orig .wav file is very long
-    disp('Select tutor motif.');
+    fprintf('Select entire tutor motif region.\n');
     tutorSong = plotAndAdjust(tutorStruct,[],wholeRegion, tutorParams, ...
         'editSpecType', 'fine', 'adjustLabels',true,'dgram.minContrast',1e-8,...
         'optGraphs',{'waveform','deriv'});

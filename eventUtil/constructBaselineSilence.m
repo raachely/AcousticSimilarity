@@ -5,7 +5,7 @@ fs = params.fs;
 baseEvents = [];
 
 
-regions = stepSpectrogram(songStruct,params); %finds sounds
+regions = stepSpectrogram(songStruct,params, 'verbose', false); %finds sounds
 silentRegions = eventFromTimes([regions(1:end-1).stop],[regions(2:end).start],fs); %need to switch starts and stops
 
 % construct base events into segments of bLength length
@@ -28,6 +28,7 @@ fprintf('Deleted %d baseline events due to overlap...\n',length(overlapBaseWithA
 %singing)
 tempSoundEvents = {length(baseEvents)};
 %progressbar('Checking baseline regions for complete silence');
+fprintf('Checking baseline regions for complete silence ...\n');
 for ii = 1:length(baseEvents)
     [~, tempSound] = findSilenceBaseline(songStruct,baseEvents(ii), params, 'plot', false, 'silenceThresh', 0.5);
     
